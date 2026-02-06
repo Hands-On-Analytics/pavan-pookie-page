@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensory Love Story</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background: #fff5f5; }
+        .cursive { font-family: 'Dancing Script', cursive; }
+        .page-enter { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Smooth transition for the running image */
+        .running-image { transition: all 0.3s ease-out; }
+    </style>
+</head>
+<body x-data="valentinesApp()">
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        
+        <div x-show="page === 1" class="text-center page-enter">
+            <h1 class="text-4xl md:text-5xl text-pink-600 cursive mb-6">Love in Every Sense</h1>
+            <p class="text-lg text-gray-700 max-w-md mx-auto leading-relaxed">
+                Love is a symphony played through the five human senses.<br>
+                It is the vision of a future, the warmth of a touch, the sweetness of shared moments,<br>
+                the scent of memories, and the melody of two hearts beating as one.
+            </p>
+            <button @click="page++" class="mt-8 px-8 py-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition">Begin the Journey</button>
+        </div>
+
+        <div x-show="page === 2" class="text-center page-enter">
+            <h2 class="text-3xl text-pink-500 cursive mb-4">Vision</h2>
+            <p class="mb-6">They say eyes are the windows to the soul.<br>Drop a photo here that makes your world brighter.</p>
+            
+            <div class="border-2 border-dashed border-pink-300 p-10 rounded-xl bg-white relative">
+                <input type="file" 
+                       @change="handleFileUpload" 
+                       accept="image/*"
+                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"/>
+                
+                <p x-text="uploadStatus" class="mt-3 text-sm font-semibold text-pink-500"></p>
+                
+                <div x-show="isUploading" class="mt-2 text-pink-400">
+                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <button x-show="uploadedImageUrl" @click="page++" class="mt-8 text-pink-500 font-bold hover:underline">Next Sense &rarr;</button>
+        </div>
+
+        <div x-show="page === 3" class="text-center page-enter relative h-96 w-full max-w-lg mx-auto">
+            <h2 class="text-3xl text-pink-500 cursive mb-4">Touch</h2>
+            <p class="mb-10">A single touch can spark a thousand emotions.<br>But sometimes, I'm just a little out of reach...Struggles of LDR :( !</p>
+            
+            <div class="relative h-64 border border-pink-100 rounded-lg bg-white/30">
+                <img src="assets/pookie.jpg"
+                     :style="`transform: translate(${touchPos.x}px, ${touchPos.y}px)`"
+                     @mouseover="moveImage"
+                     @click="moveImage"
+                     class="absolute left-1/2 top-1/2 -ml-16 -mt-16 w-32 h-32 rounded-full border-4 border-pink-400 shadow-lg cursor-pointer running-image"
+                     alt="Me"
+                     onerror="this.src='https://via.placeholder.com/150/FF69B4/FFFFFF?text=Pookie'"> 
+                     </div>
+            
+            <button @click="page++" class="mt-8 text-pink-500 font-bold hover:underline">You caught my heart anyway &rarr;</button>
+        </div>
+
+        <div x-show="page === 4" class="text-center page-enter">
+            <h2 class="text-3xl text-pink-500 cursive mb-4">Taste</h2>
+            <p>Love is the secret ingredient that makes life delicious.<br>What’s your favorite way to satisfy your sweet tooth?</p>
+            <div class="mt-6 space-y-2 text-left inline-block">
+                <template x-for="dessert in ['Mango sticky rice', 'Waffle', 'Kunafa', 'Chocolates', 'Cream-stone']">
+                    <label class="block p-3 bg-white rounded-lg shadow-sm border border-pink-100 cursor-pointer hover:bg-pink-50">
+                        <input type="radio" name="dessert" :value="dessert" class="text-pink-500 focus:ring-pink-500">
+                        <span class="ml-2 text-gray-700" x-text="dessert"></span>
+                    </label>
+                </template>
+            </div>
+            <p class="mt-4 text-xs italic text-gray-400">Buu did a bad job in giving options:</p>
+            <button @click="page++" class="mt-8 block mx-auto text-pink-500 font-bold hover:underline">Next Sense &rarr;</button>
+        </div>
+
+        <div x-show="page === 5" class="text-center page-enter">
+            <h2 class="text-3xl text-pink-500 cursive mb-4">Smell</h2>
+            <p>The scent of a flower, the trail of a perfume.<br>Some fragrances are simply unforgettable, just like you.</p>
+            <div class="flex justify-center gap-8 mt-10">
+                <div class="text-center">
+                    <span class="text-6xl block mb-2">🌹</span>
+                    <p class="text-sm text-gray-500 italic">Fresh Roses</p>
+                </div>
+                <div class="text-center">
+                    <span class="text-6xl block mb-2">✨</span>
+                    <p class="text-sm text-gray-500 italic">Favorite Perfume</p>
+                </div>
+            </div>
+            <button @click="page++" class="mt-12 text-pink-500 font-bold hover:underline">Next Sense &rarr;</button>
+        </div>
+
+        <div x-show="page === 6" class="text-center page-enter">
+            <h2 class="text-3xl text-pink-500 cursive mb-4">Hearing</h2>
+            <p class="mb-6">Your laughter is my favorite song.<br>Pick a melody for this moment:</p>
+            <div class="grid grid-cols-1 gap-4 max-w-xs mx-auto">
+                <button @click="song='Iraaday'; page++" class="p-4 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 shadow-sm transition transform hover:scale-105">a. Iraaday</button>
+                <button @click="song='Varoon'; page++" class="p-4 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 shadow-sm transition transform hover:scale-105">b. Varoon</button>
+                <button @click="song='laddu-laddu'; page++" class="p-4 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 shadow-sm transition transform hover:scale-105">c. laddu-laddu (on demand)</button>
+            </div>
+        </div>
+
+        <div x-show="page === 7" class="text-center page-enter">
+            <div class="mb-6 inline-block p-2 bg-white shadow-2xl rounded-lg rotate-3 transform transition hover:rotate-0 duration-500">
+                <img :src="uploadedImageUrl" class="w-64 h-64 object-cover rounded shadow-inner" alt="Our Memory">
+            </div>
+            <h1 class="text-4xl text-pink-600 cursive mt-6">Will you be my valentine for life?</h1>
+            <div class="mt-10 flex flex-col md:flex-row justify-center gap-4 items-center">
+                <button @click="alert('Yay! Happy Valentines Day! ❤️')" class="px-10 py-3 bg-pink-500 text-white rounded-full text-xl shadow-lg hover:bg-pink-600 hover:scale-110 transition duration-300">Yes!</button>
+                <button class="px-10 py-3 bg-gray-200 text-gray-400 rounded-full text-xl cursor-not-allowed" disabled>Yes (But in grey)</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function valentinesApp() {
+            return {
+                page: 1,
+                uploadStatus: 'Waiting for your magic...',
+                isUploading: false,
+                uploadedImageUrl: null,
+                touchPos: { x: 0, y: 0 },
+                song: '',
+                
+                // --- AZURE INTEGRATION LOGIC ---
+                async handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    this.isUploading = true;
+                    this.uploadStatus = "Uploading to the cloud... ☁️";
+                    
+                    // YOUR PROVIDED SAS URL
+                    const sasUrl = "https://sapookieagent.blob.core.windows.net/assets-input-from-pookie-agent?sp=rcw&st=2026-02-06T17:00:34Z&se=2026-02-14T01:15:34Z&sv=2024-11-04&sr=c&sig=Hq3yoEhrmounTRmVp4F66711ZjqkhwFZqKeiNvIU%2FFc%3D"; 
+                    
+                    // Create the Blob URL
+                    const blobUrl = `${sasUrl.split('?')[0]}/${file.name}?${sasUrl.split('?')[1]}`;
+
+                    try {
+                        // Attempt upload to Azure
+                        const response = await fetch(blobUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'x-ms-blob-type': 'BlockBlob',
+                                'Content-Type': file.type
+                            },
+                            body: file
+                        });
+
+                        if (response.ok) {
+                            // If Azure upload succeeds, use the Azure URL
+                            // We strip the SAS token for display if public access is enabled, 
+                            // but usually, we keep the SAS token for immediate viewing if private.
+                            // For safety, let's use the full URL with token so she can see it immediately.
+                            this.uploadedImageUrl = blobUrl; 
+                            this.uploadStatus = "Success! Image captured in the stars ✨";
+                        } else {
+                            throw new Error('Azure upload failed');
+                        }
+                    } catch (err) {
+                        console.error("Upload error:", err);
+                        this.uploadStatus = "Cloud busy, using local magic instead! ✨";
+                        
+                        // FALLBACK: If Azure fails (CORS or Network), display local file
+                        // This ensures the website still "works" for her visually
+                        this.uploadedImageUrl = URL.createObjectURL(file);
+                    } finally {
+                        this.isUploading = false;
+                    }
+                },
+
+                // Logic for Page 3 (Running Image)
+                moveImage() {
+                    // Moves the image randomly within a range of +/- 120px
+                    this.touchPos.x = (Math.random() - 0.5) * 240; 
+                    this.touchPos.y = (Math.random() - 0.5) * 240;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
